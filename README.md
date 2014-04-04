@@ -22,16 +22,16 @@ To parse everything to ZF2's script parser do a $this->ScriptRepo($this->serverU
 
 Example of how im using it:
 
-        <?= 
-            $this->ScriptRepo($this->serverUrl(true))->needScript('jQuery','1.10.2','JS')
-                ->needScript('bootstrap','3.1.1','JS')
-                ->needScript('bootstrap-theme','3.1.1','CSS')
-                ->needScript('font-collection','1.0.0','CSS')
-                ->makeRepository()->addToHead(); 
-        ?>
+<?= 
+    $this->ScriptRepo($this->serverUrl(true))->needScript('jQuery','1.10.2','JS')
+	->needScript('bootstrap','3.1.1','JS')
+	->needScript('bootstrap-theme','3.1.1','CSS')
+	->needScript('font-collection','1.0.0','CSS')
+	->makeRepository()->addToHead(); 
+?>
 
-        <?= $this->headScript()  ?>	
-        
-        <?= $this->headStyle() ?>  
+<?= $this->headScript()  ?>	
+
+<?= $this->headStyle() ?>  
 
 this will automatically push all the scripts to the system in the right order.
