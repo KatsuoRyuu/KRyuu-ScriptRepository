@@ -1,0 +1,18 @@
+{
+    "name": "KatsuoRyuu/KRyuu-ScriptRepository",
+    "description": "Zend Framework Script and CSS maintainer, using Doctrine2ORM and graph dependency algorithm and cache. Made this to make frontend development easier.",
+    "authors": [
+	{
+	    "name": "Anders Blenstrup-Pedersen",
+	    "email": "anders-github@drake-development.org",
+	    "homepage": "http://drake-development.org",
+	    "role": "Author"
+	}
+    ],
+    "require": {
+	"php": ">=5.3.3",
+	"zendframework/zendframework": "2.*",
+	"doctrine/doctrine-module" : "~0.7",
+	"doctrine/doctrine-orm-module" : "~0.7"
+    }
+}
