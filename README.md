@@ -30,8 +30,8 @@ Example of how im using it:
                 ->makeRepository()->addToHead(); 
         ?>
 
-        <?= $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico')) ?>
-        
         <?= $this->headScript()  ?>	
         
         <?= $this->headStyle() ?>  
+
+this will automatically push all the scripts to the system in the right order.
