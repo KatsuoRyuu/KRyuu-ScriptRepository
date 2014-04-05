@@ -1,9 +1,21 @@
 <?php
 namespace ScriptRepository\View\Helper;
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/** 
+ * @note This modules is made for development, and was not meant to be used in production, even thou a lot of
+ * performance boost options has been made(I'm still testing to see what performance hit it has).
+ * 
+ * The lower TTL you have the bigger the performance hit will be when using cache.
+ * again the cache will be able to save you for a lot when active(bear in mind im still testing the 
+ * way im using the cache it might be bad).
+ * 
+ * @todo Add support for auto downloading the scripts form the net, support for net positions of the scripts
+ * so that you can use the fx. //netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js as a link.
+ * Alternative dependency tree storage, like array or in file, and maybe even memory cache.
+ * @package ScriptRepository
+ * @author Anders Blenstrup-Pedersen <anders-github@drake-development.org>
+ * @license http://opensource.org/licenses/mit-license.php MIT License
+ * @version 0.0.1 (2014-04-04)
+ * @link https://github.com/KatsuoRyuu/KRyuu-ScriptRepository
  */
 
 use Zend\View\Helper\AbstractHelper;
@@ -128,6 +140,7 @@ class ScriptHelper extends AbstractHelper
         $this->scriptDriectory =        __DIR__ . '/../../../../../../../views/scripts/';
         $this->cacheDirectory =         __DIR__ . '/../../../../../../../public/cache/';
         
+        // getting the configuration from the module.config.php
         
         $this->scripts =                $config['scripts'];
         $this->scriptLoadOrder =        $config['scriptLoadOrder'];
@@ -149,12 +162,28 @@ class ScriptHelper extends AbstractHelper
         return $this;
     }
     
+    
+    /**
+     * When invoked we want this object to be parsed back and check if the cache files are still valid.
+     * 
+     * @todo Need to improve performance, fx instead of using md5 then use DB call or file load. Maybe use the ZF2 internal cache to find the needed cache file.
+     * @param type $url
+     * @return \ScriptRepository\View\Helper\ScriptHelper
+     */
     public function __invoke($url=null)
     {
+        /*
+         * if we are missing the url the cache filename hasn't been set yet.
+         * so lets do it now.
+         */
         if ($url!=null){
             $this->url = $url;
             $this->cachefile = md5($this->url);
         } 
+        
+        /*
+         * if we are using cache check i the cache files exists and the ttl hasnt run out.
+         */
         if ($this->useCache==true){
             if(file_exists($this->cacheDirectory.$this->cachefile.'.js') && filemtime($this->cacheDirectory.$this->cachefile.'.js')+$this->ttl > $this->timeNow) {
                     $this->cached = true;
@@ -163,7 +192,18 @@ class ScriptHelper extends AbstractHelper
         return $this;
     }
     
+    /**
+     * Add the needed scripts to the repository.
+     * @param type $name    script name
+     * @param type $ver     Script version
+     * @param type $type    Type of script CSS or JS
+     * @return \ScriptRepository\View\Helper\ScriptHelper
+     */
     public function needScript($name,$ver,$type){
+        /*
+         * If the cache isnt valid please find the needed scripts and their dependencies.
+         * Im using Doctrine 2 ORM for this. 
+         */
         if (!$this->cached){
             $script = $this->entityManager->getRepository('ScriptRepository\Entity\Script')
                     ->findOneBy(array('name'=>$name,'version'=>$ver,'type'=>$type));
@@ -174,27 +214,49 @@ class ScriptHelper extends AbstractHelper
         return $this;
     }
     
+    /**
+     * This will generate a list of all the needed files form the repository.
+     * @Hint To minimize stress you should only run the makeRepository() once.
+     * @todo find a more optimized way to do this!
+     * @return \ScriptRepository\View\Helper\ScriptHelper
+     */
     public function makeRepository(){
         
+        /*
+         * We only want to run this if the cache was not accepted or if we are not using the cache at all.
+         */
         if ($this->cached == false || $this->useCache == false){
             $name = array();
             $keys = array();
+            /*
+             * first lets generate a list of all the needed files for the script.
+             */
             foreach($this->scripts as $script){
-                $scripts = $script->readScripts();                
-                $keys = array_merge(array_keys($scripts), $keys);
-                $name = $scripts + $name;
+                $scripts = $script->readScripts();                  // see the Entity\Script for more information.             
+                $keys = array_merge(array_keys($scripts), $keys);   // merge the returned array with all the existend keys
+                $name = $scripts + $name;                           // merge the array with the needed scripts
             }
             
             $keysize = count($keys)-1;
             $loadOrder=array();
+            /*
+             * Now we need to get rid of all the dublicated scripts.
+             * 
+             */
             for($i=$keysize; $i>=0; $i--){
                 if(!in_array($name[$keys[$i]], $loadOrder)){
                     $loadOrder[] = $name[$keys[$i]];
                 }
             }
-
+            
+            /*
+             * Add the scripts to the objects global script load order.
+             */
             $this->scriptLoadOrder = $loadOrder;
             
+            /*
+             * If we are using cache we need to write everything to a cache file.
+             */
             if ($this->useCache) {
                 $this->writeCacheFile();
             }
@@ -202,17 +264,34 @@ class ScriptHelper extends AbstractHelper
         return $this;
     }
     
+    /**
+     * Simple html generation.
+     * To make it simple, if we are not using cache, then just add the scripts to the head by using ZF2s internal script handler.
+     * @todo Improve the html output, we would like to have more configuration.
+     * @return string
+     */
     public function toHtml(){
+        
         if ($this->useCache){
             return "\n\t".'<script src="'.$this->publicCacheFolder.$this->cachefile.'.js"></script>'."\n\t"
                 . '<link rel="stylesheet" type="text/css" href="'.$this->publicCacheFolder.$this->cachefile.'.css" />';
         } else {
             $this->addToHead();
         }
+        return  '';
     }
     
+    
+    /**
+     * Add the scripts to ZF2s internal script handler.
+     * This is using append to make sure the files are put in the right order.
+     */
     public function addToHead(){ 
         
+        /*
+         * If we are using the cache file add it to the ZF2 script handler, be careful this might make dublicates in the ZF2s handler
+         * because ZF2 doesnt know if its already added.
+         */
         if ($this->useCache){
             $this->headScript->appendFile($this->publicCacheFolder.$this->cachefile.'.js');
             $this->headLink->appendStylesheet($this->publicCacheFolder.$this->cachefile.'.css');
@@ -221,6 +300,9 @@ class ScriptHelper extends AbstractHelper
         }
     }
     
+    /**
+     * This will append every single script in the scriptLoadOrder array to the ZF2s script and link handler.
+     */
     protected function appendScripts(){ 
         foreach ($this->scriptLoadOrder as $script){
             if ($script->getType()=='JS'){
@@ -231,10 +313,19 @@ class ScriptHelper extends AbstractHelper
         }
     }
     
+    /**
+     * If you asked to use the cache function then this will write the script file to the system. 
+     * @NOTE The collection of data will make a huge performance hit on your system, but will in the end give you a performance boot
+     * when its done.
+     * @todo Need to make a minimizer script for CSS files.
+     */
     protected function writeCacheFile(){
         $cacheFileContentsJS='';
         $cacheFileContentsCSS='';
         
+        /*
+         * Merging the contents of all the script files, both CSS and JS
+         */
         foreach ($this->scriptLoadOrder as $script){
             if ($script->getType()=='JS'){
                 $cacheFileContentsJS .= file_get_contents($this->scriptDriectory.strtolower($script->getType()).'/'.$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()));
@@ -243,6 +334,11 @@ class ScriptHelper extends AbstractHelper
                 $cacheFileContentsCSS .= file_get_contents($this->scriptDriectory.strtolower($script->getType()).'/'.$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()));
             }
         }
+        
+        /*
+         * If you have activated minimizing of the files then we are going to minimize the file else
+         * we will just write out the files to the public cache path.
+         */
         if ($this->minimize == true){
             file_put_contents($this->cacheDirectory.$this->cachefile.'.js', "/* AUTOMERGED & MINIMIZED BY DRAKE DEVELOPMET */\n".Minimizer\JSMin::minify($cacheFileContentsJS));
             file_put_contents($this->cacheDirectory.$this->cachefile.'.css', "/* AUTOMERGED & MINIMIZED BY DRAKE DEVELOPMET */\n".$cacheFileContentsCSS);
