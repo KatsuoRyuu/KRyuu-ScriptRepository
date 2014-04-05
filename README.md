@@ -1,4 +1,4 @@
-KRyuu-ScriptRepository
+KRyuu-ScriptRepository 0.0.1
 ======================
 
 Zend Framework Script and CSS maintainer, using Doctrine2ORM and graph dependency algorithm and cache. Made this to make frontend development easier.
