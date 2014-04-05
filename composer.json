@@ -2,6 +2,7 @@
     "name": "katsuo-ryuu/kryuu-script-repository",
     "description": "Zend Framework Script and CSS maintainer, using Doctrine2ORM and graph dependency algorithm and cache. Made this to make frontend development easier.",
     "type": "library",
+    "license": "MIT",
     "keywords": [
         "zf2"
     ],
@@ -19,5 +20,13 @@
 	"zendframework/zendframework": "2.*",
 	"doctrine/doctrine-module" : "~0.7",
 	"doctrine/doctrine-orm-module" : "~0.7"
+    }
+    "autoload": {
+        "psr-0": {
+            "KRyuu-ScriptRepository": "src/"
+        },
+        "classmap": [
+            "./Module.php"
+        ]
     }
 }
