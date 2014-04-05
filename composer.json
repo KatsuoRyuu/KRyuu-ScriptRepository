@@ -1,6 +1,11 @@
 {
     "name": "katsuo-ryuu/kryuu-script-repository",
     "description": "Zend Framework Script and CSS maintainer, using Doctrine2ORM and graph dependency algorithm and cache. Made this to make frontend development easier.",
+    "type": "library",
+    "keywords": [
+        "zf2"
+    ],
+    "homepage": "https://github.com/KatsuoRyuu/KRyuu-ScriptRepository",
     "authors": [
 	{
 	    "name": "Anders Blenstrup-Pedersen",
