@@ -20,7 +20,7 @@
 	"zendframework/zendframework": "2.*",
 	"doctrine/doctrine-module" : "~0.7",
 	"doctrine/doctrine-orm-module" : "~0.7"
-    }
+    },
     "autoload": {
         "psr-0": {
             "KRyuu-ScriptRepository": "src/"
