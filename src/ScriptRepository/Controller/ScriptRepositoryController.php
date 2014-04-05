@@ -1,11 +1,15 @@
 <?php
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/** 
+ * @note NO FINISHED AT ALL PLEASE DONT USE
+ * @todo finish the administration tool, to maintain the repository.
+ * as of now its only the test bench to please dont use this!
+ * @package ScriptRepository
+ * @author Anders Blenstrup-Pedersen <anders-github@drake-development.org>
+ * @license http://opensource.org/licenses/mit-license.php MIT License
+ * @version 0.0.1 (2014-04-04)
+ * @link https://github.com/KatsuoRyuu/KRyuu-ScriptRepository
  */
-
 
 
 namespace ScriptRepository\Controller;
