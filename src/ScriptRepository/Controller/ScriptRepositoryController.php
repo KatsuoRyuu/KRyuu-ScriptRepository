@@ -1,4 +1,5 @@
 <?php
+namespace ScriptRepository\Controller;
 
 /** 
  * @note NO FINISHED AT ALL PLEASE DONT USE
@@ -10,9 +11,6 @@
  * @version 0.0.1 (2014-04-04)
  * @link https://github.com/KatsuoRyuu/KRyuu-ScriptRepository
  */
-
-
-namespace ScriptRepository\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
