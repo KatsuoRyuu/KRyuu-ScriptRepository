@@ -119,6 +119,7 @@ class ScriptHelper extends AbstractHelper
      * @var type string
      */
     private $cachefile=null;
+    
     /**
      * No change on editing.
      * System var for the time right now, is used bu the ttl(time to live), cache updater.
@@ -151,7 +152,6 @@ class ScriptHelper extends AbstractHelper
         $this->cached =                 $config['cached'];
         $this->cacheDirectory =         $config['cacheDirectory'];
         $this->cachefile =              $config['cachefile'];
-        $this->timeNow =                $config['timeNow'];
         $this->minimize =               $config['minimize'];
         $this->ttl =                    $config['ttl'];
         
