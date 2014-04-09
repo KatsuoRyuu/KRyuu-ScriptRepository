@@ -41,8 +41,6 @@ class Script {
      */
     private $script;
     
-    
-    
     /**
      *
      * @var type string
@@ -63,6 +61,13 @@ class Script {
      * @ORM\column(type="string")
      */
     private $version='';
+    
+    /**
+     *
+     * @var type string
+     * @ORM\column(type="string")
+     */
+    private $url='';
     
     /**
      *
@@ -141,6 +146,15 @@ class Script {
     
     public function setVersion($version){
         $this->version = $version;
+        return $this;
+    }
+    
+    public function getUrl(){
+        return $this->url;
+    }
+    
+    public function setUrl($url){
+        $this->url = $url;
         return $this;
     }
     

@@ -1,4 +1,4 @@
-KRyuu-ScriptRepository 0.0.1
+KRyuu-ScriptRepository 0.0.2
 ======================
 
 Zend Framework Script and CSS maintainer, using Doctrine2ORM and graph dependency algorithm and cache. Made this to make frontend development easier.
@@ -35,3 +35,12 @@ Example of how im using it:
     <?= $this->headStyle() ?>  
 
 this will automatically push all the scripts to the system in the right order.
+
+
+
+Changes: 09.04.2014
+======================
+1. Your can now choose between URL paths for your scripts.
+2. If you dont want to use doctrine, then just use the internal Array DepTree (src/DependencyTree/DepTree.php)
+3. In view you will find a scriptfolder, with the script I use, you should copy this to you public folder, unless you use the internal parser
+4. Note a few changes in the configuration.

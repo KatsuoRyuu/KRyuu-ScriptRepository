@@ -82,11 +82,37 @@ return array(
              */
             'cachefile'         => null,
                 
-    /**
-     * Choose to schrink the cached scripts by removing extraneous spaces and linebreaks.
-     * @var type boolean
-     */
+            /**
+             * Choose to schrink the cached scripts by removing extraneous spaces and linebreaks.
+             * @var type boolean
+             */
             'minimize'          => false,
+            
+            /**
+             * Accept using URL paths if avaiable.
+             * @var Boolean
+             */
+            'urlscript'         => true,
+            
+            /**
+             * force using array repo instead of doctrine 2.
+             * @var Boolean
+             */
+            'arrayRepo'         => true,
+            
+            /**
+             * force using internel paths, scripts will be parsed thro PHP.
+             * This might give you a big performance hit.
+             * @var Boolean
+             */
+            'useInternalPath'         => false,
+            
+            /**
+             * The internal path for the Scripts.
+             * Used when useInternalPath is true.
+             * @var Boolean
+             */
+            'internalPath'         => __DIR__.'/../view/Scripts/',
                     
     /**
      * how many seconds the cachefile should live before it needs to be updated.
@@ -108,10 +134,27 @@ return array(
             'ScriptRepository' => array(
                 'type'    => 'literal',
                 'options' => array(
-                    'route' => '/ScriptRepository',
+                    'route' => '/script',
                     'defaults' => array(
                         'controller'    => 'ScriptRepository\Controller\ScriptRepository',
                         'action'        => 'index',
+                    ),
+                ),
+                'may_terminate' => true,
+                'child_routes' => array(
+                    'Script' => array(
+                        'type'    => 'Zend\Mvc\Router\Http\Segment',
+                        'options' => array(
+                            'route' => '/file[/:type][/:file]',
+                            'constraints' => array(
+                                'type'  => '[a-zA-Z0-9.-]*',
+                                'file'  => '[a-zA-Z0-9.-]*',
+                            ),
+                            'defaults' => array(
+                                'controller'    => 'ScriptRepository\Controller\ScriptRepository',
+                                'action'        => 'script',
+                            ),
+                        ),
                     ),
                 ),
             ),

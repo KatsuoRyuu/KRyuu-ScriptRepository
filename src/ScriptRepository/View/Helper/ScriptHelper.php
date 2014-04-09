@@ -126,6 +126,32 @@ class ScriptHelper extends AbstractHelper
      * @var type int
      */
     private $timeNow=0;
+    
+    /**
+     * Choose to accept url addresses on script if avaiable.
+     * @var type boolean
+     */
+    private $urlscript=false;
+    
+    /**
+     * Choose to accept url addresses on script if avaiable.
+     * @var type boolean
+     */
+    private $arrayRepo=true;
+            
+    /**
+     * force using internel paths, scripts will be parsed thro PHP.
+     * This might give you a big performance hit.
+     * @var Boolean
+     */
+    private $useInternalPath=true;
+
+    /**
+     * The internal path for the Scripts.
+     * Used when useInternalPath is true.
+     * @var Boolean
+     */
+    private $internalPath= '';
 
     
     
@@ -137,6 +163,7 @@ class ScriptHelper extends AbstractHelper
     {
         
         $config = $serviceLocator->get('config')[__NAMESPACE__]['configuration'];
+        $this->staticDependencyTree = include __DIR__ .'/../../DependencyTree/DepTree.php';
         
         $this->scriptDriectory =        __DIR__ . '/../../../../../../../views/scripts/';
         $this->cacheDirectory =         __DIR__ . '/../../../../../../../public/cache/';
@@ -154,9 +181,15 @@ class ScriptHelper extends AbstractHelper
         $this->cachefile =              $config['cachefile'];
         $this->minimize =               $config['minimize'];
         $this->ttl =                    $config['ttl'];
+        $this->urlscript =              $config['urlscript'];
+        $this->arrayRepo =              $config['arrayRepo'];
+        $this->useInternalPath =        $config['useInternalPath'];
+        $this->internalPath =           $config['internalPath'];
         
         $this->timeNow = time();
-        $this->entityManager = $serviceLocator->get('Doctrine\ORM\EntityManager');
+        if ($this->arrayRepo == false) {
+            $this->entityManager = $serviceLocator->get('Doctrine\ORM\EntityManager');
+        }
         $this->headLink = $serviceLocator->get('viewhelpermanager')->get('headLink');
         $this->headScript = $serviceLocator->get('viewhelpermanager')->get('headScript');
         return $this;
@@ -202,16 +235,43 @@ class ScriptHelper extends AbstractHelper
     public function needScript($name,$ver,$type){
         /*
          * If the cache isnt valid please find the needed scripts and their dependencies.
-         * Im using Doctrine 2 ORM for this. 
+         * I'm using Doctrine 2 ORM for this. 
+         * New: 
+         * It is also possible to use the Static Array Dependency tree now.
          */
         if (!$this->cached){
-            $script = $this->entityManager->getRepository('ScriptRepository\Entity\Script')
-                    ->findOneBy(array('name'=>$name,'version'=>$ver,'type'=>$type));
+            if ($this->arrayRepo == false){
+                $script = $this->entityManager->getRepository('ScriptRepository\Entity\Script')
+                        ->findOneBy(array('name'=>$name,'version'=>$ver,'type'=>$type));
+            } else {
+                $script = new Script();
+                $script->setId($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['id']);
+                $script->setName($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['name']);
+                $script->setType($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['type']);
+                $script->setVersion($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['version']);
+                $script->setUrl($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['url']);
+                $this->addDependencies($script);
+            }
             if (is_object($script)){
                 $this->scripts[] = $script;
             }
         }
         return $this;
+    }
+    
+    private function addDependencies($script){
+        
+        $depArray = $this->staticDependencyTree[strtolower($script->getType().'/'.$script->getName())][$script->getVersion()]['dependencies'];
+        foreach ($depArray as $scriptname => $scriptversion){
+            $newScript = new Script();
+            $newScript->setId($this->staticDependencyTree[strtolower($scriptname)][$scriptversion]['id']);
+            $newScript->setName($this->staticDependencyTree[strtolower($scriptname)][$scriptversion]['name']);
+            $newScript->setType($this->staticDependencyTree[strtolower($scriptname)][$scriptversion]['type']);
+            $newScript->setVersion($this->staticDependencyTree[strtolower($scriptname)][$scriptversion]['version']);
+            $newScript->setUrl($this->staticDependencyTree[strtolower($scriptname)][$scriptversion]['url']);
+            $script->linkScript($newScript);
+            $this->addDependencies($newScript);
+        }
     }
     
     /**
@@ -304,13 +364,53 @@ class ScriptHelper extends AbstractHelper
      * This will append every single script in the scriptLoadOrder array to the ZF2s script and link handler.
      */
     protected function appendScripts(){ 
+        if ($this->urlscript == true){
+            $this->appendScriptsURL();
+        } else {
+            $this->appendScriptsLocal();
+        }
+    }
+    
+    protected function appendScriptsURL(){
+        foreach ($this->scriptLoadOrder as $script){
+            if ($script->getUrl() == null){
+                $script->setUrl($this->publicScriptFolder.strtolower($script->getType()).'/'.$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()));
+            }
+            if ($script->getType()=='JS'){
+                $this->headScript->appendFile($script->getURL());
+            } elseif ($script->getType()=='CSS'){
+                $this->headLink->appendStylesheet($script->getURL());
+            }
+        }
+    }
+
+    protected function appendScriptsLocal(){
+        if($this->internalPath==false){
+            $this->appendScriptExternalPath();
+        } else {
+            $this->appendScriptInternalPath();
+        }
+    }
+    
+    protected function appendScriptInternalPath(){
+        $urlHelper = $this->view->plugin('url');
+        foreach ($this->scriptLoadOrder as $script){
+            if ($script->getType()=='JS'){
+                $this->headScript->appendFile($urlHelper('ScriptRepository/Script',array('type'=>$script->getType(),'file'=>$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()))));
+            } elseif ($script->getType()=='CSS'){
+                $this->headLink->appendStylesheet($urlHelper('ScriptRepository/Script',array('type'=>$script->getType(),'file'=>$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()))));
+            }
+        }  
+    }
+    
+    protected function appendScriptExternalPath(){
         foreach ($this->scriptLoadOrder as $script){
             if ($script->getType()=='JS'){
                 $this->headScript->appendFile($this->publicScriptFolder.strtolower($script->getType()).'/'.$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()));
             } elseif ($script->getType()=='CSS'){
                 $this->headLink->appendStylesheet($this->publicScriptFolder.strtolower($script->getType()).'/'.$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()));
             }
-        }
+        } 
     }
     
     /**

@@ -22,87 +22,28 @@ class ScriptRepositoryController extends AbstractActionController{
     
     public function indexAction() {
         
-        
-        $entityManager = $this->getEntityManager();
-
-        $jQuery = new Script();
-        $jQuery->setName('jQuery')->setVersion('1.10.2')->setType('JS');
-        
-        $jQuery_migrate = new Script();
-        $jQuery_migrate->setName("jquery-migrate")->setVersion("1.2.1")->setType("JS");
-        
-        $spin = new Script();
-        $spin->setName('spin.js')->setVersion('1.3.1')->setType('JS');
-        
-        $loading = new Script();
-        $loading->setName('loading')->setVersion('0.0.1')->setType('JS');
-        
-        $emailSpamProtection = new Script();
-        $emailSpamProtection->setName('emailSpamProtection')->setVersion('1.0')->setType('JS');
-        
-        $jquery_ui = new Script();
-        $jquery_ui->setName('jquery-ui')->setVersion('1.10.3')->setType('JS');
-        
-        $Cycle2 = new Script();
-        $Cycle2->setName('jquery.cycle2')->setVersion('20130909')->setType('JS');
-        
-        $bootstrap_min = new Script();
-        $bootstrap_min->setName('bootstrap')->setVersion('2012')->setType('JS');
-        
-        $spin->linkScript($jQuery);
-        
-        $Cycle2->linkScript($jQuery);
-        
-        $loading->linkScript($jQuery);
-        
-        $emailSpamProtection->linkScript($jQuery);
-        
-        $jquery_ui->linkScript($jQuery);
-        
-        
-        $entityManager->persist($jQuery);
-        $entityManager->persist($jQuery_migrate);
-        $entityManager->persist($spin);
-        $entityManager->persist($Cycle2);
-        $entityManager->persist($loading);
-        $entityManager->persist($emailSpamProtection);
-        $entityManager->persist($jquery_ui);
-        $entityManager->persist($bootstrap_min);
-        
-        $entityManager->flush();
     }
     
-    public function index2Action() {
-        $loader         = new Script(9, 'loader');
-        $jQueryGalleri  = new Script(6, 'JQueryGalleri');
-        $jQuery         = new Script(4, 'JQuery');
-        $pointer        = new Script(8, 'Pointer');
-        $angularJS      = new Script(5, 'AngularJS');
-        $button         = new Script(7, 'Button');
-        $spin           = new Script(11,'Spin');
-
-        $jQueryGalleri->linkScript($pointer)->linkScript($loader)->linkScript($jQuery);
-        $angularJS->linkScript($jQuery)->linkScript($button)->linkScript($spin);
-
-
-        print_r($jQueryGalleri->readScripts());
-        print_r($angularJS->readScripts());
-
-        $keys = array_merge(array_keys($jQueryGalleri->readScripts()), array_keys($angularJS->readScripts()));
-        $name = $jQueryGalleri->readScripts() + $angularJS->readScripts();
-
-        print_r($keys);
-        print_r($name);
-
-        $keysize = count($keys)-1;
-        $loadOrder=array();
-        for($i=$keysize; $i>=0; $i--){
-            if(!key_exists($keys[$i], $loadOrder)){
-                $loadOrder[] = $name[$keys[$i]];
-            }
+    public function scriptAction(){
+        $viewModel = new ViewModel();
+        $cType = array('css'=>'text/css','js'=>'text/javascript');
+                
+        $type = strtolower($this->params('type'));
+        $file = strtolower($this->params('file'));
+        
+		$response = $this->getEvent()->getResponse();
+		if (isset($cType)) {
+            $response->getHeaders()->addHeaderLine('Content-Type: ' . $cType[$type]);
         }
-
-        print_r($loadOrder);
+        
+        $path = $this->getServiceLocator()->get('config')['ScriptRepository\View\Helper']['configuration']['internalPath'];
+        $viewModel->setTerminal(true);
+        if (file_exists($path.strtolower($type).'/'.$file)) {
+            $viewModel->setVariables(array('file' => file_get_contents($path.strtolower($type).'/'.$file)));
+        } else {
+            $viewModel->setVariables(array('file' => ''));
+        }
+        return $viewModel;
     }
 
 
