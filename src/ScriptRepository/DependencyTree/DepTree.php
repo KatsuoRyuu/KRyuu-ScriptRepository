@@ -106,7 +106,7 @@ return array(
                         'version'       => '3.1.1',
                         'name'          => 'bootstrap',
                         'url'           => '//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.js',
-                        'dependencies'  => array(),
+                        'dependencies'  => array("js/jquery-ui"=>"1.10.3"),
                         'type'          => 'JS'
                     ),
             ),
@@ -116,7 +116,7 @@ return array(
                         'version'       => '3.1.1',
                         'name'          => 'bootstrap.min',
                         'url'           => '//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css',
-                        'dependencies'  => array('js/bootstrap.min'=>'3.1.1'),
+                        'dependencies'  => array('js/bootstrap.min'=>'3.1.1',"js/jquery-ui.min"=>"1.10.3"),
                         'type'          => 'CSS'
                     ),
             ),
@@ -158,6 +158,26 @@ return array(
                         'url'           => null,
                         'dependencies'  => array('js/jquery'=>'1.10.2'),
                         'type'          => 'CSS'
+                    ),
+            ),
+            'js/jquery-ui' => array(
+                    '1.10.3' => array(
+                        'id'            => 170,
+                        'version'       => '1.10.3',
+                        'name'          => 'jquery-ui',
+                        'url'           => null,
+                        'dependencies'  => array('js/jquery'=>'1.10.2'),
+                        'type'          => 'JS'
+                    ),
+            ),
+            'js/jquery-ui.min' => array(
+                    '1.10.3' => array(
+                        'id'            => 180,
+                        'version'       => '1.10.3',
+                        'name'          => 'jquery-ui.min',
+                        'url'           => null,
+                        'dependencies'  => array('js/jquery.min'=>'1.10.2'),
+                        'type'          => 'JS'
                     ),
             ),
             
