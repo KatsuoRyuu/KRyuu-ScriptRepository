@@ -1,14 +1,6 @@
 <?php
 return array(
             'js/jquery' => array(
-                     '1.11.0' => array(
-                        'id'            => 10,
-                        'version'       => '1.11.0',
-                        'name'          => 'jquery',
-                        'url'           => 'http://code.jquery.com/jquery-1.11.0.min.js',
-                        'dependencies'  => array(),
-                        'type'          => 'JS'
-                    ),  
                     '1.10.2' => array(
                         'id'            => 10,
                         'version'       => '1.10.2',
@@ -24,7 +16,7 @@ return array(
                         'version'       => '1.2.1',
                         'name'          => 'jquery-migrate',
                         'url'           => 'http://code.jquery.com/jquery-migrate-1.2.1.min.js',
-                        'dependencies'  => array('jquery'=>'1.11.0'),
+                        'dependencies'  => array('js/jquery'=>'1.10.2'),
                         'type'          => 'JS'
                     ),
             ),
@@ -34,7 +26,7 @@ return array(
                         'version'       => '2.0.0',
                         'name'          => 'spin',
                         'url'           => 'http://fgnass.github.io/spin.js/spin.min.js',
-                        'dependencies'  => array('jquery'=>'1.11.0'),
+                        'dependencies'  => array('js/jquery'=>'1.10.2'),
                         'type'          => 'JS'
                     ),
             ),
@@ -44,7 +36,7 @@ return array(
                         'version'       => '20130909',
                         'name'          => 'jquery.cycle2',
                         'url'           => 'http://malsup.github.io/min/jquery.cycle2.min.js',
-                        'dependencies'  => array('jquery'=>'1.11.0'),
+                        'dependencies'  => array('js/jquery'=>'1.10.2'),
                         'type'          => 'JS'
                     ),
             ),
@@ -54,7 +46,7 @@ return array(
                         'version'       => '0.0.1',
                         'name'          => 'loading',
                         'url'           => null,
-                        'dependencies'  => array('jquery'=>'1.11.0'),
+                        'dependencies'  => array('js/jquery'=>'1.10.2'),
                         'type'          => 'JS'
                     ),
             ),
@@ -64,7 +56,7 @@ return array(
                         'version'       => '1.0',
                         'name'          => 'emailSpanProtection',
                         'url'           => null,
-                        'dependencies'  => array('jquery'=>'1.11.0'),
+                        'dependencies'  => array('js/jquery'=>'1.10.2'),
                         'type'          => 'JS'
                     ),
             ),
@@ -74,7 +66,7 @@ return array(
                         'version'       => '1.10.4',
                         'name'          => 'jquery-ui',
                         'url'           => null,
-                        'dependencies'  => array('jquery'=>'1.11.0'),
+                        'dependencies'  => array('js/jquery'=>'1.10.2'),
                         'type'          => 'JS'
                     ),
             ),
@@ -145,6 +137,26 @@ return array(
                         'name'          => 'font-collection',
                         'url'           => null,
                         'dependencies'  => array(),
+                        'type'          => 'CSS'
+                    ),
+            ),
+            'js/angular-js' => array(
+                    '1.3.0' => array(
+                        'id'            => 150,
+                        'version'       => '1.3.0',
+                        'name'          => 'angular-js',
+                        'url'           => "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.7/angular.js",
+                        'dependencies'  => array(),
+                        'type'          => 'JS'
+                    ),
+            ),
+            'css/jquery-ui' => array(
+                    '1.10.3' => array(
+                        'id'            => 160,
+                        'version'       => '1.10.3',
+                        'name'          => 'jquery-ui',
+                        'url'           => null,
+                        'dependencies'  => array('js/jquery'=>'1.10.2'),
                         'type'          => 'CSS'
                     ),
             ),

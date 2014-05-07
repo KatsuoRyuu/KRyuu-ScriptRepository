@@ -92,7 +92,7 @@ return array(
              * Accept using URL paths if avaiable.
              * @var Boolean
              */
-            'urlscript'         => true,
+            'urlscript'         => false,
             
             /**
              * force using array repo instead of doctrine 2.
@@ -105,7 +105,7 @@ return array(
              * This might give you a big performance hit.
              * @var Boolean
              */
-            'useInternalPath'         => false,
+            'useInternalPath'         => true,
             
             /**
              * The internal path for the Scripts.
