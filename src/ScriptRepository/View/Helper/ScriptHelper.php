@@ -224,6 +224,11 @@ class ScriptHelper extends AbstractHelper
         }
         return $this;
     }
+   
+    public function setSurfix($dir){
+        $this->surfix = $dir;
+        return $this;
+    }
     
     /**
      * Add the needed scripts to the repository.
@@ -232,7 +237,7 @@ class ScriptHelper extends AbstractHelper
      * @param type $type    Type of script CSS or JS
      * @return \ScriptRepository\View\Helper\ScriptHelper
      */
-    public function needScript($name,$ver,$type){
+    public function needScript($name,$ver,$type,$options=array(),$personal=false){
         /*
          * If the cache isnt valid please find the needed scripts and their dependencies.
          * I'm using Doctrine 2 ORM for this. 
@@ -240,23 +245,44 @@ class ScriptHelper extends AbstractHelper
          * It is also possible to use the Static Array Dependency tree now.
          */
         if (!$this->cached){
-            if ($this->arrayRepo == false){
+            if ($personal == true){
+                $script = $this->personalScript($name,$ver,$type,$options);
+            } else if ($this->arrayRepo == false){
                 $script = $this->entityManager->getRepository('ScriptRepository\Entity\Script')
                         ->findOneBy(array('name'=>$name,'version'=>$ver,'type'=>$type));
+                $script->setOptions($options);
             } else {
-                $script = new Script();
-                $script->setId($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['id']);
-                $script->setName($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['name']);
-                $script->setType($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['type']);
-                $script->setVersion($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['version']);
-                $script->setUrl($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['url']);
-                $this->addDependencies($script);
+                if (!array_key_exists(strtolower($type.'/'.$name), $this->staticDependencyTree)) {
+                    $script = $this->personalScript($name,$ver,$type,$options);
+                } else {
+                    $script = new Script();
+                    $script->setId($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['id']);
+                    $script->setName($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['name']);
+                    $script->setType($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['type']);
+                    $script->setVersion($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['version']);
+                    $script->setUrl($this->staticDependencyTree[strtolower($type.'/'.$name)][$ver]['url']);   
+                    $script->setOptions($options);
+                    $this->addDependencies($script);
+                }
             }
             if (is_object($script)){
                 $this->scripts[] = $script;
             }
         }
         return $this;
+    }
+    
+    private function personalScript($name,$ver,$type,$options){
+
+        $script = new Script();
+        $script->setId(-1);
+        $script->setName(strtolower($name));
+        $script->setType(strtolower($type));
+        $script->setVersion(strtolower($ver));
+        $script->setUrl(null);   
+        $script->setPersonal(true);
+        $script->setOptions($options); 
+        return $script;
     }
     
     private function addDependencies($script){
@@ -313,6 +339,7 @@ class ScriptHelper extends AbstractHelper
              * Add the scripts to the objects global script load order.
              */
             $this->scriptLoadOrder = $loadOrder;
+            $this->makeUrl();
             
             /*
              * If we are using cache we need to write everything to a cache file.
@@ -322,6 +349,23 @@ class ScriptHelper extends AbstractHelper
             }
         }
         return $this;
+    }
+    
+    public function makeUrl(){
+        $urlHelper = $this->view->plugin('url');
+        foreach ($this->scriptLoadOrder as $script){
+            if ($this->urlscript == true && $script->getPersonal()==false){
+                // Nothing to do right now
+            } elseif ($this->internalPath==true && $script->getPersonal()==false) {
+                
+                $script->setUrl( $urlHelper('ScriptRepository/Script',array('type'=>$script->getType(),'file'=>$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()))) );
+            } elseif ($this->internalPath==false && $script->getPersonal()==false) {
+
+                $script->setUrl( $this->publicScriptFolder.strtolower($script->getType()).'/'.$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()) );
+            } elseif ($script->getPersonal()==true) {
+                $script->setUrl( $urlHelper('ScriptRepository/Script',array('type'=>$script->getType(),'file'=>$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()),'surfix'=>$this->surfix)) );
+            }
+        }
     }
     
     /**
@@ -364,53 +408,17 @@ class ScriptHelper extends AbstractHelper
      * This will append every single script in the scriptLoadOrder array to the ZF2s script and link handler.
      */
     protected function appendScripts(){ 
-        if ($this->urlscript == true){
-            $this->appendScriptsURL();
-        } else {
-            $this->appendScriptsLocal();
-        }
+        $this->appendScriptsURL();
     }
     
     protected function appendScriptsURL(){
         foreach ($this->scriptLoadOrder as $script){
-            if ($script->getUrl() == null){
-                $script->setUrl($this->publicScriptFolder.strtolower($script->getType()).'/'.$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()));
-            }
-            if ($script->getType()=='JS'){
+            if (strtoupper($script->getType())=='JS'){
                 $this->headScript->appendFile($script->getURL());
-            } elseif ($script->getType()=='CSS'){
+            } elseif (strtoupper($script->getType())=='CSS'){
                 $this->headLink->appendStylesheet($script->getURL());
             }
         }
-    }
-
-    protected function appendScriptsLocal(){
-        if($this->internalPath==false){
-            $this->appendScriptExternalPath();
-        } else {
-            $this->appendScriptInternalPath();
-        }
-    }
-    
-    protected function appendScriptInternalPath(){
-        $urlHelper = $this->view->plugin('url');
-        foreach ($this->scriptLoadOrder as $script){
-            if ($script->getType()=='JS'){
-                $this->headScript->appendFile($urlHelper('ScriptRepository/Script',array('type'=>$script->getType(),'file'=>$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()))));
-            } elseif ($script->getType()=='CSS'){
-                $this->headLink->appendStylesheet($urlHelper('ScriptRepository/Script',array('type'=>$script->getType(),'file'=>$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()))));
-            }
-        }  
-    }
-    
-    protected function appendScriptExternalPath(){
-        foreach ($this->scriptLoadOrder as $script){
-            if ($script->getType()=='JS'){
-                $this->headScript->appendFile($this->publicScriptFolder.strtolower($script->getType()).'/'.$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()));
-            } elseif ($script->getType()=='CSS'){
-                $this->headLink->appendStylesheet($this->publicScriptFolder.strtolower($script->getType()).'/'.$script->getName().'-'.$script->getVersion().'.'.strtolower($script->getType()));
-            }
-        } 
     }
     
     /**

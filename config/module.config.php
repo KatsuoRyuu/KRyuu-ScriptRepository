@@ -21,6 +21,17 @@ return array(
              */
             'cacheDirectory'    => __DIR__ . '/../../../../public/cache/',
             /**
+             * For personal scripts.
+             * If you are running the design outside the normal area please add this here.
+             * @var type String
+             */
+            'personalDirectory'    => __DIR__ . '/../../../../View/scripts/',
+            /**
+             * Root Path of the Public folder.
+             * @var type String
+             */
+            'personalDirectory'    => __DIR__ . '/../../../../../views/designs/',
+            /**
              * Array of the scripts needed by the system.
              * This array is the base search array of the repository.
              * @var type Array
@@ -145,10 +156,11 @@ return array(
                     'Script' => array(
                         'type'    => 'Zend\Mvc\Router\Http\Segment',
                         'options' => array(
-                            'route' => '/file[/:type][/:file]',
+                            'route' => '/file[/:type][/:file][/:surfix]',
                             'constraints' => array(
                                 'type'  => '[a-zA-Z0-9.-]*',
                                 'file'  => '[a-zA-Z0-9.-]*',
+                                'surfix'  => '[a-zA-Z0-9.-]*',
                             ),
                             'defaults' => array(
                                 'controller'    => 'ScriptRepository\Controller\ScriptRepository',

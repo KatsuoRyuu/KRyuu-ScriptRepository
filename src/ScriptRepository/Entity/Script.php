@@ -76,6 +76,20 @@ class Script {
      */
     private $isRoot = false;
     
+    /**
+     * 
+     * @var type array
+     * @ORM\column(type="array")
+     */
+    private $options=array();
+    
+    /**
+     * 
+     * @var type boolean
+     * @ORM\column(type="boolean")
+     */
+    private $personal=false;
+    
     public function __construct(){
         $this->script= new ArrayCollection();
         return $this;
@@ -172,6 +186,30 @@ class Script {
         return $this;
     }
     
+    public function setOption($key,$var){
+        $this->options[$key] = $var;
+        return $this;
+    }
     
+    public function getOption($key){
+        return $this->options[$key];
+    }
     
+    public function setOptions($array=array()){
+        $this->options = array_merge($this->options, $array);
+        return $this;
+    }
+    
+    public function getOptions(){
+        return $this->options;
+    }
+    
+    public function setPersonal($bool){
+        $this->personal = $bool;
+        return $this;
+    }
+    
+    public function getPersonal() {
+        return $this->personal;
+    }
 }

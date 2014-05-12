@@ -30,6 +30,7 @@ class ScriptRepositoryController extends AbstractActionController{
                 
         $type = strtolower($this->params('type'));
         $file = strtolower($this->params('file'));
+        $surfix = $this->params('surfix');
         
 		$response = $this->getEvent()->getResponse();
 		if (isset($cType)) {
@@ -37,9 +38,12 @@ class ScriptRepositoryController extends AbstractActionController{
         }
         
         $path = $this->getServiceLocator()->get('config')['ScriptRepository\View\Helper']['configuration']['internalPath'];
+        $personalPath = $this->getServiceLocator()->get('config')['ScriptRepository\View\Helper']['configuration']['personalDirectory'];
         $viewModel->setTerminal(true);
         if (file_exists($path.strtolower($type).'/'.$file)) {
             $viewModel->setVariables(array('file' => file_get_contents($path.strtolower($type).'/'.$file)));
+        } elseif (file_exists($personalPath.'/'.$surfix.'/'.strtolower($type).'/'.$file)) {
+            $viewModel->setVariables(array('file' => file_get_contents($personalPath.'/'.$surfix.'/'.strtolower($type).'/'.$file)));
         } else {
             $viewModel->setVariables(array('file' => ''));
         }

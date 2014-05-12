@@ -25,8 +25,9 @@ Example of how im using it:
     <?= 
 	$this->ScriptRepo($this->serverUrl(true))->needScript('jQuery','1.10.2','JS')
 	    ->needScript('bootstrap','3.1.1','JS')
-	    ->needScript('bootstrap-theme','3.1.1','CSS')
+	    ->needScript('bootstrap-theme','3.1.1','CSS',array('media'=>'all'))
 	    ->needScript('font-collection','1.0.0','CSS')
+	    ->needScript('styling-for-1024','1.0.0','CSS',array('media'=>'screen and (max-width:1024px)'))
 	    ->makeRepository()->addToHead(); 
     ?>
 
@@ -36,7 +37,11 @@ Example of how im using it:
 
 this will automatically push all the scripts to the system in the right order.
 
-
+Changes: 13.05.2014
+======================
+1. Changed the way it loads the files.
+2. Support for off site directory loading.
+3. Support for loading files outside the repository.
 
 Changes: 09.04.2014
 ======================
