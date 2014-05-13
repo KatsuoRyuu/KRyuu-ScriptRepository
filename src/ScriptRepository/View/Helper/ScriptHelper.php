@@ -338,7 +338,7 @@ class ScriptHelper extends AbstractHelper
             /*
              * Add the scripts to the objects global script load order.
              */
-            $this->scriptLoadOrder = $loadOrder;
+            $this->scriptLoadOrder = array_reverse($loadOrder, true);
             $this->makeUrl();
             
             /*
@@ -414,9 +414,9 @@ class ScriptHelper extends AbstractHelper
     protected function appendScriptsURL(){
         foreach ($this->scriptLoadOrder as $script){
             if (strtoupper($script->getType())=='JS'){
-                $this->headScript->appendFile($script->getURL());
+                $this->headScript->prependFile($script->getURL());
             } elseif (strtoupper($script->getType())=='CSS'){
-                $this->headLink->appendStylesheet($script->getURL());
+                $this->headLink->prependStylesheet($script->getURL());
             }
         }
     }
