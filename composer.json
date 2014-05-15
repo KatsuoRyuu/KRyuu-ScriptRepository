@@ -4,7 +4,8 @@
     "type": "library",
     "license": "MIT",
     "keywords": [
-        "zf2"
+        "zf2",
+	"Script Repository"
     ],
     "homepage": "https://github.com/KatsuoRyuu/KRyuu-ScriptRepository",
     "authors": [
