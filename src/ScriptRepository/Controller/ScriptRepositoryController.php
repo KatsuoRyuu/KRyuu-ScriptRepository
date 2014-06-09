@@ -25,6 +25,7 @@ class ScriptRepositoryController extends AbstractActionController{
     }
     
     public function scriptAction(){
+        $config = $this->getServiceLocator()->get('config');
         $viewModel = new ViewModel();
         $cType = array('css'=>'text/css','js'=>'text/javascript');
                 
@@ -37,8 +38,8 @@ class ScriptRepositoryController extends AbstractActionController{
             $response->getHeaders()->addHeaderLine('Content-Type: ' . $cType[$type]);
         }
         
-        $path = $this->getServiceLocator()->get('config')['ScriptRepository\View\Helper']['configuration']['internalPath'];
-        $personalPath = $this->getServiceLocator()->get('config')['ScriptRepository\View\Helper']['configuration']['personalDirectory'];
+        $path = $config['ScriptRepository\View\Helper']['configuration']['internalPath'];
+        $personalPath = $config['ScriptRepository\View\Helper']['configuration']['personalDirectory'];
         $viewModel->setTerminal(true);
         if (file_exists($path.strtolower($type).'/'.$file)) {
             $viewModel->setVariables(array('file' => file_get_contents($path.strtolower($type).'/'.$file)));

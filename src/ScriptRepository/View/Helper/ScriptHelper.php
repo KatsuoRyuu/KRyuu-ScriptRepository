@@ -161,8 +161,8 @@ class ScriptHelper extends AbstractHelper
      */
     public function __construct($serviceLocator)
     {
-        
-        $config = $serviceLocator->get('config')[__NAMESPACE__]['configuration'];
+        $tmpConfig = $serviceLocator->get('config');
+        $config = $tmpConfig[__NAMESPACE__]['configuration'];
         $this->staticDependencyTree = include __DIR__ .'/../../DependencyTree/DepTree.php';
         
         $this->scriptDriectory =        __DIR__ . '/../../../../../../../views/scripts/';
